@@ -1,27 +1,21 @@
 import React, { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "../../firebaseConfig";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
-    email: ""
   });
-  const [loading, setLoading] = useState(false); // State to track loading state
-
-  // Replace with your actual Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDf9Ga8IW3_wJU2Nhw96HdXQtMIIb330eI",
-    authDomain: "iit-mandi-c1b08.firebaseapp.com",
-    projectId: "iit-mandi-c1b08",
-    storageBucket: "iit-mandi-c1b08.appspot.com",
-    messagingSenderId: "56949869499",
-    appId: "1:56949869499:web:a0615868b10143e65d929e",
-    measurementId: "G-X24SC9CF2X"
-  };
-
+  const [loading, setLoading] = useState(false);
+  const navigate=useNavigate()
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -32,33 +26,54 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading state to true when submitting form
+    setLoading(true);
     try {
       let userCredential;
       if (isSignup) {
-        userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        userCredential = await createUserWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+        console.log("Signup successful");
       } else {
-        userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+        userCredential = await signInWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+        console.log("Signin successful");
       }
-      console.log("User:", userCredential.user);
-      // Handle successful response
+
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+      const email = user.email;
+      const firstName = email.substring(0, email.indexOf('@'));
+      console.log("Token:", token);
+      localStorage.setItem("userToken", token);
+      localStorage.setItem("firstName", firstName);
+      navigate("/", { state: { token, firstName } });
+      // You can now use the token as needed
     } catch (error) {
-      console.error("Error:", error);
-      // Handle error response
+      console.error("Error:", error.message);
+      alert(`Error occurred: ${error.message}`);
     } finally {
-      setLoading(false); // Set loading state to false after authentication operation completes
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center bg-gray-100">
-      <div className="mt-10 w-full max-w-md bg-white p-8 shadow-md rounded-lg">
-        <h2 className="text-2xl font-bold text-center mb-4">
+    <div className="flex items-center justify-center bg-gray-100">
+      <div className="mt-10 w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+        <h2 className="mb-4 text-center text-2xl font-bold">
           {isSignup ? "Sign Up" : "Login"}
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+            <label
+              className="mb-2 block text-sm font-bold text-gray-700"
+              htmlFor="email"
+            >
               Email
             </label>
             <input
@@ -67,12 +82,15 @@ const Login = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-start"
+              className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-start"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+            <label
+              className="mb-2 block text-sm font-bold text-gray-700"
+              htmlFor="password"
+            >
               Password
             </label>
             <input
@@ -81,24 +99,26 @@ const Login = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-start"
+              className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-start"
               required
             />
           </div>
           <div className="flex items-center justify-between">
             <button
               type="submit"
-              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading} // Disable button when loading is true
+              className={`rounded-lg bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${loading ? "cursor-not-allowed opacity-50" : ""}`}
+              disabled={loading}
             >
-              {loading ? 'Loading...' : (isSignup ? "Sign Up" : "Login")}
+              {loading ? "Loading..." : isSignup ? "Sign Up" : "Login"}
             </button>
             <button
               type="button"
               className="text-sm text-blue-500 hover:text-blue-700 focus:outline-none"
               onClick={() => setIsSignup(!isSignup)}
             >
-              {isSignup ? "Already have an account? Login" : "Don't have an account? Sign Up"}
+              {isSignup
+                ? "Already have an account? Login"
+                : "Don't have an account? Sign Up"}
             </button>
           </div>
         </form>

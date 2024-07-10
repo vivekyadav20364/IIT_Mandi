@@ -10,8 +10,15 @@ export default function Button({
   const navigate = useNavigate();
 
   const handleClick = () => {
+    const token=localStorage.getItem("userToken");
+    console.log("Token in button",token)
     onClick();
+    if(token){
     navigate("/stockAnalysis");
+    }
+    else{
+    navigate("/login")
+    }
   };
 
   return (

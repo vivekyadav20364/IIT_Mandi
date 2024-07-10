@@ -83,50 +83,29 @@
 
 // export default App;
 
-
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import ListItems from "./components/ListItems";
 import About from "./components/About";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+} from "react-router-dom";
 import Login from "./components/Login";
 import StockAnalysis from "./components/StockAnalysis";
 import ContactUs from "./components/ContactUs";
-import { Element } from "react-scroll";
+import Home from "./components/Home";
 
 function App() {
+
+
   return (
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <div className="bg-[#F2F7FF]">
-                <Hero />
-                <ListItems />
-              </div>
-              <Element name="about">
-              <About />
-                </Element>
-             
-              {/* <div className="bg-[#F2F7FF]">
-                <Element name="services">
-                  <Services />
-                </Element>
-                <ServiceCards />
-              </div> */}
-              {/* <BookAnAppointment /> */}
-             
-              <Element name="contact">
-              <ContactUs />
-                </Element>
-            </>
-          }
-        />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/stockAnalysis" element={<StockAnalysis />} />
       </Routes>
@@ -135,5 +114,3 @@ function App() {
 }
 
 export default App;
-
-
